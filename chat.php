@@ -184,7 +184,11 @@ if (!$contact_username) {
                 messageElement.className = 'message ' + (isSent ? 'sent' : 'received');
 
                 var messageContent = '<div class="text">' + htmlspecialchars(message) + '</div>';
-                messageContent += '<div class="timestamp">' + htmlspecialchars(new Date(timestamp).toLocaleTimeString()) + '</div>';
+                messageContent += '<div class="timestamp">' +
+                    htmlspecialchars(new Date(timestamp).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })) + '</div>';
                 messageElement.innerHTML = messageContent;
 
                 chatBox.appendChild(messageElement);

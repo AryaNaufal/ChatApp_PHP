@@ -203,60 +203,62 @@ if (!$contact_username) {
                     return;
                 }
 
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'chat_handler.php', true);
-                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            if (response.status === 'success') {
-                                messageInput.value = '';
-                                fetchMessages(); // Fetch messages to see the new message
-                            } else {
-                                alert(response.message);
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse JSON response:', e);
+                fetch('chat_handler.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            contact_id: contactId,
+                            message: message
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
                         }
-                    } else {
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            messageInput.value = '';
+                            fetchMessages(); // Fetch messages to see the new message
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         alert('An error occurred while sending the message.');
-                    }
-                };
-                xhr.onerror = function() {
-                    alert('Network error.');
-                };
-                xhr.send('contact_id=' + encodeURIComponent(contactId) + '&message=' + encodeURIComponent(message));
+                    });
+
             }
 
             function fetchMessages() {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'chat_handler.php?contact_id=' + encodeURIComponent(contactId), true);
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        try {
-                            var messages = JSON.parse(xhr.responseText);
-                            chatBox.innerHTML = '';
-                            messages.forEach(function(msg) {
-                                var isSent = msg.username === <?= json_encode($contact_username) ?>; // Compare username with contact username
-                                addMessageToChat(msg.username, msg.message, isSent, msg.timestamp);
-                            });
-
-                            // Adjust scroll position based on whether we were at the bottom
-                            if (isAtBottom) {
-                                chatBox.scrollTop = chatBox.scrollHeight;
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse JSON response:', e);
+                fetch('chat_handler.php?contact_id=' + encodeURIComponent(contactId))
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
                         }
-                    } else {
+                        return response.json();
+                    })
+                    .then(messages => {
+                        chatBox.innerHTML = '';
+                        messages.forEach(msg => {
+                            // Replace with your actual username comparison logic
+                            var isSent = msg.username === <?= json_encode($contact_username) ?>;
+                            addMessageToChat(msg.username, msg.message, isSent, msg.timestamp);
+                        });
+
+                        // Adjust scroll position based on whether we were at the bottom
+                        if (isAtBottom) {
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         alert('An error occurred while fetching messages.');
-                    }
-                };
-                xhr.onerror = function() {
-                    alert('Network error.');
-                };
-                xhr.send();
+                    });
             }
 
             chatBox.addEventListener('scroll', function() {

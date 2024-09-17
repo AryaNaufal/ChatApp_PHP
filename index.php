@@ -80,18 +80,23 @@ $contacts = $result->fetch_all(MYSQLI_ASSOC);
                 return;
             }
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'add_contact.php', true);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    alert(xhr.responseText);
-                }
-            };
-            xhr.onerror = function() {
-                alert('Network error.');
-            };
-            xhr.send('contact_username=' + encodeURIComponent(contactUsername));
+            fetch('add_contact.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        contact_username: contactUsername
+                    })
+                })
+                .then(response => response.text())
+                .then(responseText => {
+                    alert(responseText);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Network error.');
+                });
         });
     </script>
 </body>

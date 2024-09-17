@@ -56,6 +56,16 @@ if (!$contact_username) {
             scrollbar-width: none; */
         }
 
+        @media screen and (min-width: 425px) {
+            .chat-container {
+                height: calc(100vh - 150px);
+            }
+
+            #chat-box {
+                height: 80%;
+            }
+        }
+
         #chat-box::-webkit-scrollbar {
             /* display: none; */
             width: 10px;
@@ -68,12 +78,6 @@ if (!$contact_username) {
         #chat-box::-webkit-scrollbar-thumb {
             background-color: #888;
             border-radius: 5px;
-        }
-
-        @media screen and (min-height: 425px) {
-            #chat-box {
-                height: 500px;
-            }
         }
 
         #message {
@@ -160,7 +164,7 @@ if (!$contact_username) {
         <button class="back-button"><a href="index.php">Back</a></button>
         <h1><?php echo htmlspecialchars($contact_username); ?></h1>
     </div>
-    <div>
+    <div class="chat-container">
         <div id="chat-box"></div>
         <textarea id="message" placeholder="Type your message..." style="resize:none"></textarea>
         <button id="send-message">Send Message</button>
